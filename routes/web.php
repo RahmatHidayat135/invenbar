@@ -10,17 +10,18 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PeminjamanController;
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('peminjaman', PeminjamanController::class);
-    Route::get('peminjaman/laporan', [PeminjamanController::class, 'laporan'])
-         ->name('peminjaman.laporan');
+
+    // Custom route harus didefinisikan lebih dulu sebelum resource
+    Route::get('/peminjaman/laporan', [PeminjamanController::class, 'cetakLaporan'])
+    ->name('peminjaman.laporan');
+
+
     Route::post('/peminjaman/{peminjaman}/kembalikan', [PeminjamanController::class, 'kembalikan'])
-    ->name('peminjaman.kembalikan');
+        ->name('peminjaman.kembalikan');
 
+    // Resource route
+    Route::resource('peminjaman', PeminjamanController::class);
 });
-
-
-
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,9 +36,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('kategori', KategoriController::class);
     Route::resource('lokasi', LokasiController::class);
     Route::resource('user', UserController::class);
-    Route::get('/user', [App\Http\Controllers\UserController::class, 'index'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('user.index');
+
+    Route::get('/user', [UserController::class, 'index'])
+        ->middleware(['auth', 'role:admin'])
+        ->name('user.index');
 });
 
 Route::middleware('auth')->group(function () {
