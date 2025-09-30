@@ -94,24 +94,30 @@ class PeminjamanController extends Controller
             ->with('success', 'Peminjaman berhasil dihapus.');
     }
 
-    public function kembalikan($id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
+public function kembalikan($id)
+{
+    $peminjaman = Peminjaman::with('barang')->findOrFail($id);
 
-        // Cek apakah sudah dikembalikan sebelumnya
-        if ($peminjaman->status === 'Dikembalikan') {
-            return redirect()->route('peminjaman.index')
-                ->with('error', 'Barang sudah dikembalikan sebelumnya.');
-        }
-
-        // Update status & tanggal kembali
-        $peminjaman->status = 'Dikembalikan';
-        $peminjaman->tanggal_kembali = Carbon::now()->toDateString();
-        $peminjaman->save();
-
+    if ($peminjaman->status === 'Dikembalikan') {
         return redirect()->route('peminjaman.index')
-            ->with('success', 'Barang berhasil dikembalikan.');
+            ->with('error', 'Barang sudah dikembalikan sebelumnya.');
     }
+
+    // Update status & tanggal kembali
+    $peminjaman->status = 'Dikembalikan';
+    $peminjaman->tanggal_kembali = Carbon::now()->toDateString();
+    $peminjaman->save();
+
+    // Tambahkan stok kembali ke tabel barang
+    $barang = $peminjaman->barang;
+    if ($barang) {
+        $barang->jumlah += $peminjaman->jumlah;
+        $barang->save();
+    }
+
+    return redirect()->route('peminjaman.index')
+        ->with('success', 'Barang berhasil dikembalikan dan stok diperbarui.');
+}
 
     public function laporan()
     {
