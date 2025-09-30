@@ -35,34 +35,37 @@ class PeminjamanController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'barang_id'      => 'required|exists:barangs,id',
-            'nama_peminjam'  => 'required|string|max:255',
-            'jumlah'         => 'required|integer|min:1',
-            'tanggal_pinjam' => 'required|date',
-        ]);
+{
+    $request->validate([
+        'barang_id'      => 'required|exists:barangs,id',
+        'nama_peminjam'  => 'required|string|max:255',
+        'jumlah'         => 'required|integer|min:1',
+        'tanggal_pinjam' => 'required|date',
+    ]);
 
-        $barang = Barang::findOrFail($request->barang_id);
+    $barang = Barang::findOrFail($request->barang_id);
 
-        if ($request->jumlah > $barang->stok) {
-            return back()->with('error', 'Jumlah pinjam melebihi stok tersedia!')
-                         ->withInput();
-        }
-
-        Peminjaman::create([
-            'barang_id'      => $request->barang_id,
-            'nama_peminjam'  => $request->nama_peminjam,
-            'jumlah'         => $request->jumlah,
-            'tanggal_pinjam' => $request->tanggal_pinjam,
-            'status'         => 'Dipinjam',
-        ]);
-
-        $barang->decrement('stok', $request->jumlah);
-
-        return redirect()->route('peminjaman.index')
-            ->with('success', 'Peminjaman berhasil ditambahkan.');
+    // ✅ pakai jumlah, bukan stok
+    if ($request->jumlah > $barang->jumlah) {
+        return back()->with('error', 'Jumlah pinjam melebihi stok tersedia!')
+                     ->withInput();
     }
+
+    Peminjaman::create([
+        'barang_id'      => $request->barang_id,
+        'nama_peminjam'  => $request->nama_peminjam,
+        'jumlah'         => $request->jumlah,
+        'tanggal_pinjam' => $request->tanggal_pinjam,
+        'status'         => 'Dipinjam',
+    ]);
+
+    // ✅ kurangi jumlah
+    $barang->decrement('jumlah', $request->jumlah);
+
+    return redirect()->route('peminjaman.index')
+        ->with('success', 'Peminjaman berhasil ditambahkan.');
+}
+
 
     public function edit(Peminjaman $peminjaman)
     {
@@ -93,19 +96,24 @@ class PeminjamanController extends Controller
     }
 
     public function kembalikan(Peminjaman $peminjaman)
-    {
-        if ($peminjaman->barang) {
-            $peminjaman->barang->increment('stok', $peminjaman->jumlah);
-        }
+{
+    if ($peminjaman->barang) {
+        // ❌ Salah
+        // $peminjaman->barang->increment('stok', $peminjaman->jumlah);
 
-        $peminjaman->update([
-            'tanggal_kembali' => now(),
-            'status' => 'Dikembalikan',
-        ]);
-
-        return redirect()->route('peminjaman.index')
-            ->with('success', 'Barang berhasil dikembalikan.');
+        // ✅ Perbaikan (pakai jumlah)
+        $peminjaman->barang->increment('jumlah', $peminjaman->jumlah);
     }
+
+    $peminjaman->update([
+        'tanggal_kembali' => now(),
+        'status' => 'Dikembalikan',
+    ]);
+
+    return redirect()->route('peminjaman.index')
+        ->with('success', 'Barang berhasil dikembalikan.');
+}
+
 
     public function laporan()
 {
