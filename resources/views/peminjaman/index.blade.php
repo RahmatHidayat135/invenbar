@@ -38,8 +38,8 @@
                 <table class="table table-bordered align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
-                            <th>Barang</th>
+                            <th>No</th>
+                            <th>Nama Barang</th>
                             <th>Nama Peminjam</th>
                             <th>Jumlah</th>
                             <th>Tanggal Pinjam</th>
@@ -49,9 +49,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($peminjamans as $item)
+                        @forelse($peminjamans as $index => $item)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $index + 1 }}</td>
                             <td>{{ $item->barang?->nama_barang ?? 'Barang tidak ditemukan' }}</td>
                             <td>{{ $item->nama_peminjam }}</td>
                             <td>{{ $item->jumlah }}</td>

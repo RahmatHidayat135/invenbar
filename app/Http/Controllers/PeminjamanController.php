@@ -11,12 +11,11 @@ class PeminjamanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Peminjaman::with('barang')->latest();
+        $query = Peminjaman::with('barang')->orderBy('id', 'asc'); // ✅ samakan urutan dengan laporan
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('barang', function ($q) use ($search) {
-                // ✅ pakai nama_barang (bukan nama)
                 $q->where('nama_barang', 'like', "%$search%")
                   ->orWhere('kode_barang', 'like', "%$search%");
             });
@@ -44,7 +43,6 @@ class PeminjamanController extends Controller
 
         $barang = Barang::findOrFail($request->barang_id);
 
-        // ✅ cek jumlah (stok tersedia)
         if ($request->jumlah > $barang->jumlah) {
             return back()->with('error', 'Jumlah pinjam melebihi stok tersedia!')
                          ->withInput();
@@ -58,7 +56,6 @@ class PeminjamanController extends Controller
             'status'         => 'Dipinjam',
         ]);
 
-        // ✅ kurangi jumlah
         $barang->decrement('jumlah', $request->jumlah);
 
         return redirect()->route('peminjaman.index')
@@ -96,7 +93,6 @@ class PeminjamanController extends Controller
     public function kembalikan(Peminjaman $peminjaman)
     {
         if ($peminjaman->barang) {
-            // ✅ perbaikan: increment jumlah, bukan stok
             $peminjaman->barang->increment('jumlah', $peminjaman->jumlah);
         }
 
@@ -111,7 +107,10 @@ class PeminjamanController extends Controller
 
     public function laporan()
     {
-        $peminjamans = Peminjaman::with('barang')->get();
+        $peminjamans = Peminjaman::with('barang')
+            ->orderBy('id', 'asc') // ✅ samakan dengan index
+            ->get();
+
         $title = "Laporan Data Peminjaman Inventaris";
         $date = now()->translatedFormat('d F Y');
 
@@ -125,7 +124,10 @@ class PeminjamanController extends Controller
 
     public function cetakLaporan()
     {
-        $peminjamans = Peminjaman::with('barang')->get();
+        $peminjamans = Peminjaman::with('barang')
+            ->orderBy('id', 'asc') // ✅ samakan dengan index
+            ->get();
+
         $title = "Laporan Data Peminjaman Inventaris";
         $date = now()->translatedFormat('d F Y');
 
