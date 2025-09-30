@@ -5,23 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Barang;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf; // pastikan sudah install barryvdh/laravel-dompdf
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+
 
 class PeminjamanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Peminjaman::with('barang')->orderBy('id', 'asc'); // ✅ samakan urutan dengan laporan
+        $query = Peminjaman::with('barang')->orderBy('id', 'asc');
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('barang', function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%$search%")
                   ->orWhere('kode_barang', 'like', "%$search%");
-            });
+            })
+            ->orWhere('nama_peminjam', 'like', "%$search%");
         }
 
-        $peminjamans = $query->get();
+        // ✅ ganti get() → paginate()
+        $peminjamans = $query->paginate(10);
 
         return view('peminjaman.index', compact('peminjamans'));
     }
@@ -90,16 +94,20 @@ class PeminjamanController extends Controller
             ->with('success', 'Peminjaman berhasil dihapus.');
     }
 
-    public function kembalikan(Peminjaman $peminjaman)
+    public function kembalikan($id)
     {
-        if ($peminjaman->barang) {
-            $peminjaman->barang->increment('jumlah', $peminjaman->jumlah);
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        // Cek apakah sudah dikembalikan sebelumnya
+        if ($peminjaman->status === 'Dikembalikan') {
+            return redirect()->route('peminjaman.index')
+                ->with('error', 'Barang sudah dikembalikan sebelumnya.');
         }
 
-        $peminjaman->update([
-            'tanggal_kembali' => now(),
-            'status' => 'Dikembalikan',
-        ]);
+        // Update status & tanggal kembali
+        $peminjaman->status = 'Dikembalikan';
+        $peminjaman->tanggal_kembali = Carbon::now()->toDateString();
+        $peminjaman->save();
 
         return redirect()->route('peminjaman.index')
             ->with('success', 'Barang berhasil dikembalikan.');
@@ -108,7 +116,7 @@ class PeminjamanController extends Controller
     public function laporan()
     {
         $peminjamans = Peminjaman::with('barang')
-            ->orderBy('id', 'asc') // ✅ samakan dengan index
+            ->orderBy('id', 'asc')
             ->get();
 
         $title = "Laporan Data Peminjaman Inventaris";
@@ -125,7 +133,7 @@ class PeminjamanController extends Controller
     public function cetakLaporan()
     {
         $peminjamans = Peminjaman::with('barang')
-            ->orderBy('id', 'asc') // ✅ samakan dengan index
+            ->orderBy('id', 'asc')
             ->get();
 
         $title = "Laporan Data Peminjaman Inventaris";

@@ -16,8 +16,9 @@ Route::middleware(['auth'])->group(function () {
     ->name('peminjaman.laporan');
 
 
-    Route::post('/peminjaman/{peminjaman}/kembalikan', [PeminjamanController::class, 'kembalikan'])
-        ->name('peminjaman.kembalikan');
+    Route::put('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])
+    ->name('peminjaman.kembalikan');
+
 
     // Resource route
     Route::resource('peminjaman', PeminjamanController::class);
