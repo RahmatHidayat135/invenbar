@@ -48,3 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::prefix('barang')->group(function () {
+    Route::post('{barang}/unit', [BarangController::class, 'storeUnit'])->name('barang.unit.store');
+    Route::put('unit/{unit}', [BarangController::class, 'updateUnit'])->name('barang.unit.update');
+    Route::delete('unit/{unit}', [BarangController::class, 'destroyUnit'])->name('barang.unit.destroy');
+});

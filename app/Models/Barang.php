@@ -6,13 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Barang extends Model
 {
-    // Sesuaikan nama tabel dengan migrasi
-    protected $table = 'barangs';
-
-    // Jika primary key bukan "id", uncomment dan sesuaikan
-    // protected $primaryKey = 'id_barang';
-
-    // Kolom-kolom yang bisa diisi secara massal
     protected $fillable = [
         'kode_barang',
         'nama_barang',
@@ -20,20 +13,22 @@ class Barang extends Model
         'lokasi_id',
         'jumlah',
         'satuan',
-        'kondisi',
         'tanggal_pengadaan',
         'gambar',
+        'detail_kondisi',
     ];
 
-    // Relasi ke kategori
+    protected $casts = [
+        'detail_kondisi' => 'array', // <--- penting biar JSON otomatis array
+    ];
+
     public function kategori()
     {
-        return $this->belongsTo(Kategori::class, 'kategori_id');
+        return $this->belongsTo(Kategori::class);
     }
 
-    // Relasi ke lokasi
     public function lokasi()
     {
-        return $this->belongsTo(Lokasi::class, 'lokasi_id');
+        return $this->belongsTo(Lokasi::class);
     }
 }

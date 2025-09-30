@@ -12,19 +12,24 @@ class CreateBarangsTable extends Migration
             $table->id();
             $table->string('kode_barang', 50)->unique();
             $table->string('nama_barang', 150);
+
+            // Relasi ke tabel kategori
             $table->foreignId('kategori_id')
                   ->constrained('kategoris')
                   ->onUpdate('cascade')
                   ->onDelete('restrict');
+
+            // Relasi ke tabel lokasi
             $table->foreignId('lokasi_id')
                   ->constrained('lokasis')
                   ->onUpdate('cascade')
                   ->onDelete('restrict');
-            $table->integer('jumlah')->default(0);
+
+            $table->integer('jumlah')->default(0); // total jumlah unit
             $table->string('satuan', 20);
-            $table->enum('kondisi', ['Baik', 'Rusak Ringan', 'Rusak Berat'])->default('Baik');
             $table->date('tanggal_pengadaan');
             $table->string('gambar')->nullable();
+
             $table->timestamps();
         });
     }

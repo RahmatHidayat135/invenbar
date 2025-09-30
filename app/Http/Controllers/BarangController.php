@@ -6,133 +6,142 @@ use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Lokasi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\File;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Tampilkan daftar barang
+     */
+    public function index()
     {
-        $search = $request->input('search');
-
-        $query = Barang::query();
-
-        if ($search) {
-            $query->where('nama_barang', 'like', '%' . $search . '%')
-                  ->orWhere('kode_barang', 'like', '%' . $search . '%');
-        }
-
-        $barangs = $query->paginate(10)->withQueryString();
-
+        $barangs = Barang::with(['kategori', 'lokasi'])->paginate(10);
         return view('barang.index', compact('barangs'));
     }
 
     public function create()
     {
         $kategori = Kategori::all();
-        $lokasi = Lokasi::all();
-        $barang = new Barang();
+        $lokasi   = Lokasi::all();
 
-        return view('barang.create', compact('barang', 'kategori', 'lokasi'));
+        return view('barang.create', compact('kategori', 'lokasi'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode_barang' => 'required|string|max:50|unique:barangs,kode_barang',
-            'nama_barang' => 'required|string|max:150',
+            'kode_barang' => 'required|unique:barangs,kode_barang',
+            'nama_barang' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategoris,id',
-            'lokasi_id' => 'required|exists:lokasis,id',
-            'jumlah' => 'required|integer|min:0',
-            'satuan' => 'required|string|max:20',
-            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+            'lokasi_id'   => 'required|exists:lokasis,id',
+            'jumlah'      => 'required|integer|min:1',
+            'satuan'      => 'required|string',
             'tanggal_pengadaan' => 'required|date',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar'      => 'nullable|image',
+            'detail_kondisi.baik' => 'nullable|integer|min:0',
+            'detail_kondisi.rusak_ringan' => 'nullable|integer|min:0',
+            'detail_kondisi.rusak_berat' => 'nullable|integer|min:0',
         ]);
 
+        // Upload gambar
         if ($request->hasFile('gambar')) {
-    $validated['gambar'] = $request->file('gambar')->store('gambar-barang', 'public');
-}
+            $validated['gambar'] = $request->file('gambar')->store('barang', 'public');
+        }
 
+        // Simpan kondisi sebagai JSON
+        $validated['detail_kondisi'] = json_encode([
+            'baik'         => $request->input('detail_kondisi.baik', 0),
+            'rusak_ringan' => $request->input('detail_kondisi.rusak_ringan', 0),
+            'rusak_berat'  => $request->input('detail_kondisi.rusak_berat', 0),
+        ]);
 
         Barang::create($validated);
 
-        return redirect()->route('barang.index')
-                         ->with('success', 'Data Barang berhasil ditambahkan.');
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil disimpan!');
     }
 
+    /**
+     * Tampilkan detail barang
+     */
     public function show(Barang $barang)
     {
         $barang->load(['kategori', 'lokasi']);
-
         return view('barang.show', compact('barang'));
     }
 
+    /**
+     * Tampilkan form edit barang
+     */
     public function edit(Barang $barang)
     {
         $kategori = Kategori::all();
-        $lokasi = Lokasi::all();
+        $lokasi   = Lokasi::all();
 
         return view('barang.edit', compact('barang', 'kategori', 'lokasi'));
     }
 
+    /**
+     * Update barang
+     */
     public function update(Request $request, Barang $barang)
     {
-        $validated = $request->validate([
-            'kode_barang' => 'required|string|max:50|unique:barangs,kode_barang,' . $barang->id,
-            'nama_barang' => 'required|string|max:150',
-            'kategori_id' => 'required|exists:kategoris,id',
-            'lokasi_id' => 'required|exists:lokasis,id',
-            'jumlah' => 'required|integer|min:0',
-            'satuan' => 'required|string|max:20',
-            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+        $request->validate([
+            'kode_barang'       => 'required|string|max:50|unique:barangs,kode_barang,' . $barang->id,
+            'nama_barang'       => 'required|string|max:255',
+            'kategori_id'       => 'required|exists:kategoris,id',
+            'lokasi_id'         => 'required|exists:lokasis,id',
+            'jumlah'            => 'required|integer|min:1',
+            'satuan'            => 'required|string|max:50',
             'tanggal_pengadaan' => 'required|date',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'detail_kondisi'    => 'required|array',
         ]);
 
-        if ($request->hasFile('gambar')) {
-            // hapus file lama kalau ada
-            if ($barang->gambar && File::exists(public_path('gambar-barang/' . $barang->gambar))) {
-                File::delete(public_path('gambar-barang/' . $barang->gambar));
-            }
+        $jumlah = (int) $request->jumlah;
+        $detailKondisi = $request->detail_kondisi;
+        $totalKondisi = array_sum($detailKondisi);
 
-            $namaFile = time() . '.' . $request->file('gambar')->getClientOriginalExtension();
-            $request->file('gambar')->move(public_path('gambar-barang'), $namaFile);
-            $validated['gambar'] = $namaFile;
+        if ($totalKondisi !== $jumlah) {
+            return back()
+                ->withInput()
+                ->withErrors(['detail_kondisi' => 'Jumlah kondisi harus sama dengan jumlah total unit.']);
         }
 
-        $barang->update($validated);
+        // Upload gambar baru
+        $gambarPath = $barang->gambar;
+        if ($request->hasFile('gambar')) {
+            if ($barang->gambar) {
+                Storage::disk('public')->delete($barang->gambar);
+            }
+            $gambarPath = $request->file('gambar')->store('barang', 'public');
+        }
 
-        return redirect()->route('barang.index')
-                         ->with('success', 'Data Barang berhasil diperbarui.');
+        $barang->update([
+            'kode_barang'       => $request->kode_barang,
+            'nama_barang'       => $request->nama_barang,
+            'kategori_id'       => $request->kategori_id,
+            'lokasi_id'         => $request->lokasi_id,
+            'jumlah'            => $jumlah,
+            'satuan'            => $request->satuan,
+            'tanggal_pengadaan' => $request->tanggal_pengadaan,
+            'gambar'            => $gambarPath,
+            'detail_kondisi'    => json_encode($detailKondisi),
+        ]);
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil diupdate!');
     }
 
+    /**
+     * Hapus barang
+     */
     public function destroy(Barang $barang)
     {
-        Gate::authorize('delete barang');
-
-        if ($barang->gambar && File::exists(public_path('gambar-barang/' . $barang->gambar))) {
-            File::delete(public_path('gambar-barang/' . $barang->gambar));
+        if ($barang->gambar) {
+            Storage::disk('public')->delete($barang->gambar);
         }
 
         $barang->delete();
 
-        return back()->with('success', 'Barang berhasil dihapus.');
-    }
-
-    public function cetakLaporan()
-    {
-        $barangs = Barang::with(['kategori', 'lokasi'])->get();
-
-        $data = [
-            'title' => 'Laporan Data Barang Inventaris',
-            'date'  => date('d F Y'),
-            'barangs' => $barangs
-        ];
-
-        $pdf = Pdf::loadView('barang.laporan', $data);
-
-        return $pdf->stream('laporan-inventaris-barang.pdf');
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
     }
 }
