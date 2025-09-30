@@ -7,8 +7,6 @@ use App\Models\Barang;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf; // pastikan sudah install barryvdh/laravel-dompdf
 
-
-
 class PeminjamanController extends Controller
 {
     public function index(Request $request)
@@ -18,7 +16,8 @@ class PeminjamanController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('barang', function ($q) use ($search) {
-                $q->where('nama', 'like', "%$search%")
+                // ✅ pakai nama_barang (bukan nama)
+                $q->where('nama_barang', 'like', "%$search%")
                   ->orWhere('kode_barang', 'like', "%$search%");
             });
         }
@@ -35,37 +34,36 @@ class PeminjamanController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'barang_id'      => 'required|exists:barangs,id',
-        'nama_peminjam'  => 'required|string|max:255',
-        'jumlah'         => 'required|integer|min:1',
-        'tanggal_pinjam' => 'required|date',
-    ]);
+    {
+        $request->validate([
+            'barang_id'      => 'required|exists:barangs,id',
+            'nama_peminjam'  => 'required|string|max:255',
+            'jumlah'         => 'required|integer|min:1',
+            'tanggal_pinjam' => 'required|date',
+        ]);
 
-    $barang = Barang::findOrFail($request->barang_id);
+        $barang = Barang::findOrFail($request->barang_id);
 
-    // ✅ pakai jumlah, bukan stok
-    if ($request->jumlah > $barang->jumlah) {
-        return back()->with('error', 'Jumlah pinjam melebihi stok tersedia!')
-                     ->withInput();
+        // ✅ cek jumlah (stok tersedia)
+        if ($request->jumlah > $barang->jumlah) {
+            return back()->with('error', 'Jumlah pinjam melebihi stok tersedia!')
+                         ->withInput();
+        }
+
+        Peminjaman::create([
+            'barang_id'      => $request->barang_id,
+            'nama_peminjam'  => $request->nama_peminjam,
+            'jumlah'         => $request->jumlah,
+            'tanggal_pinjam' => $request->tanggal_pinjam,
+            'status'         => 'Dipinjam',
+        ]);
+
+        // ✅ kurangi jumlah
+        $barang->decrement('jumlah', $request->jumlah);
+
+        return redirect()->route('peminjaman.index')
+            ->with('success', 'Peminjaman berhasil ditambahkan.');
     }
-
-    Peminjaman::create([
-        'barang_id'      => $request->barang_id,
-        'nama_peminjam'  => $request->nama_peminjam,
-        'jumlah'         => $request->jumlah,
-        'tanggal_pinjam' => $request->tanggal_pinjam,
-        'status'         => 'Dipinjam',
-    ]);
-
-    // ✅ kurangi jumlah
-    $barang->decrement('jumlah', $request->jumlah);
-
-    return redirect()->route('peminjaman.index')
-        ->with('success', 'Peminjaman berhasil ditambahkan.');
-}
-
 
     public function edit(Peminjaman $peminjaman)
     {
@@ -96,33 +94,29 @@ class PeminjamanController extends Controller
     }
 
     public function kembalikan(Peminjaman $peminjaman)
-{
-    if ($peminjaman->barang) {
-        // ❌ Salah
-        // $peminjaman->barang->increment('stok', $peminjaman->jumlah);
+    {
+        if ($peminjaman->barang) {
+            // ✅ perbaikan: increment jumlah, bukan stok
+            $peminjaman->barang->increment('jumlah', $peminjaman->jumlah);
+        }
 
-        // ✅ Perbaikan (pakai jumlah)
-        $peminjaman->barang->increment('jumlah', $peminjaman->jumlah);
+        $peminjaman->update([
+            'tanggal_kembali' => now(),
+            'status' => 'Dikembalikan',
+        ]);
+
+        return redirect()->route('peminjaman.index')
+            ->with('success', 'Barang berhasil dikembalikan.');
     }
 
-    $peminjaman->update([
-        'tanggal_kembali' => now(),
-        'status' => 'Dikembalikan',
-    ]);
-
-    return redirect()->route('peminjaman.index')
-        ->with('success', 'Barang berhasil dikembalikan.');
-}
-
-
     public function laporan()
-{
-    $peminjamans = Peminjaman::with('barang')->get();
-    $title = "Laporan Data Peminjaman Inventaris";
-    $date = now()->translatedFormat('d F Y');
+    {
+        $peminjamans = Peminjaman::with('barang')->get();
+        $title = "Laporan Data Peminjaman Inventaris";
+        $date = now()->translatedFormat('d F Y');
 
-    return view('peminjaman.laporan', compact('peminjamans', 'title', 'date'));
-}
+        return view('peminjaman.laporan', compact('peminjamans', 'title', 'date'));
+    }
 
     public function show(Peminjaman $peminjaman)
     {
@@ -130,15 +124,14 @@ class PeminjamanController extends Controller
     }
 
     public function cetakLaporan()
-{
-    $peminjamans = Peminjaman::with('barang')->get();
-    $title = "Laporan Data Peminjaman Inventaris";
-    $date = now()->translatedFormat('d F Y');
+    {
+        $peminjamans = Peminjaman::with('barang')->get();
+        $title = "Laporan Data Peminjaman Inventaris";
+        $date = now()->translatedFormat('d F Y');
 
-    $pdf = Pdf::loadView('peminjaman.laporan-pdf', compact('peminjamans', 'title', 'date'))
-              ->setPaper('A4', 'portrait');
+        $pdf = Pdf::loadView('peminjaman.laporan-pdf', compact('peminjamans', 'title', 'date'))
+                  ->setPaper('A4', 'portrait');
 
-    return $pdf->stream('laporan-peminjaman.pdf');
-}
-
+        return $pdf->stream('laporan-peminjaman.pdf');
+    }
 }
