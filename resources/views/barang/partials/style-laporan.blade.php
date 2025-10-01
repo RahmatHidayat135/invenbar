@@ -1,33 +1,29 @@
 <style>
     body {
-        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-family: Arial, sans-serif;
         font-size: 12px;
-        margin: 0;
-        padding: 0;
+        color: #000;
     }
+
     .header {
         text-align: center;
         margin-bottom: 20px;
     }
-    .header h1 {
-        margin: 0;
-        font-size: 24px;
-    }
-    .header p {
-        margin: 5px 0 0;
-        font-size: 14px;
-    }
+
     table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 15px;
+        margin: 0 auto;
     }
-    th, td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: left;
+
+    table th, table td {
+        border: 1px solid #000;
+        padding: 6px;
+        text-align: center;
     }
-    th {
-        background-color: #f2f2f2;
+
+    table th {
+        background: #f2f2f2;
+        font-weight: bold;
     }
 </style>

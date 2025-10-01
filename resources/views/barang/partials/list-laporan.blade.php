@@ -1,4 +1,4 @@
-<table class="table table-bordered">
+<table>
     <thead>
         <tr>
             <th>No</th>
@@ -8,28 +8,35 @@
             <th>Lokasi</th>
             <th>Jumlah</th>
             <th>Kondisi</th>
-            <th>Tgl. Pengadaan</th>
         </tr>
     </thead>
     <tbody>
-        {{-- ✅ Ganti @foreach dengan @forelse --}}
-        @forelse ($barangs as $index => $barang)
+        @foreach ($barang as $index => $item)
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td>{{ $barang->kode_barang }}</td>
-                <td>{{ $barang->nama_barang }}</td>
-                <td>{{ $barang->kategori->nama_kategori }}</td>
-                <td>{{ $barang->lokasi->nama_lokasi }}</td>
-                <td>{{ $barang->jumlah }} {{ $barang->satuan }}</td>
-                <td>{{ $barang->kondisi }}</td>
-                <td>{{ date('d-m-Y', strtotime($barang->tanggal_pengadaan)) }}</td>
+                <td>{{ $item->kode_barang }}</td>
+                <td>{{ $item->nama_barang }}</td>
+                <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
+                <td>{{ $item->lokasi->nama_lokasi ?? '-' }}</td>
+                <td>{{ $item->jumlah }} {{ $item->satuan }}</td>
+                <td>
+                    @php
+                        $kondisi = is_string($item->detail_kondisi) 
+                            ? json_decode($item->detail_kondisi, true) 
+                            : $item->detail_kondisi;
+                    @endphp
+
+                    @if(is_array($kondisi))
+                        @foreach($kondisi as $k => $jumlah)
+                            @if($jumlah > 0)
+                                {{ ucfirst($k) }}: {{ $jumlah }} <br>
+                            @endif
+                        @endforeach
+                    @else
+                        -
+                    @endif
+                </td>
             </tr>
-        {{-- ✅ @empty akan berjalan jika $barangs kosong --}}
-        @empty
-            <tr>
-                <td colspan="8" style="text-align: center;">Tidak ada data.</td>
-            </tr>
-        {{-- ✅ @endforelse adalah penutup dari @forelse --}}
-        @endforelse
+        @endforeach
     </tbody>
 </table>

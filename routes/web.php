@@ -11,14 +11,12 @@ use App\Http\Controllers\PeminjamanController;
 
 Route::middleware(['auth'])->group(function () {
 
-    // Custom route harus didefinisikan lebih dulu sebelum resource
+    // Custom route peminjaman
     Route::get('/peminjaman/laporan', [PeminjamanController::class, 'cetakLaporan'])
-    ->name('peminjaman.laporan');
-
+        ->name('peminjaman.laporan');
 
     Route::put('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])
-    ->name('peminjaman.kembalikan');
-
+        ->name('peminjaman.kembalikan');
 
     // Resource route
     Route::resource('peminjaman', PeminjamanController::class);
@@ -32,7 +30,12 @@ require __DIR__ . '/auth.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/barang/laporan', [BarangController::class, 'cetakLaporan'])->name('barang.laporan');
+
+    // ✅ Laporan Barang
+    Route::get('/barang/laporan', [BarangController::class, 'laporan'])->name('barang.laporan');
+Route::get('/barang/laporan/cetak', [BarangController::class, 'cetakLaporan'])->name('barang.laporan.cetak');
+
+
     Route::resource('barang', BarangController::class);
     Route::resource('kategori', KategoriController::class);
     Route::resource('lokasi', LokasiController::class);
@@ -49,6 +52,7 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Unit barang
 Route::prefix('barang')->group(function () {
     Route::post('{barang}/unit', [BarangController::class, 'storeUnit'])->name('barang.unit.store');
     Route::put('unit/{unit}', [BarangController::class, 'updateUnit'])->name('barang.unit.update');
