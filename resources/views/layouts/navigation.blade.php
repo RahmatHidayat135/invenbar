@@ -1,77 +1,63 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
     <div class="container">
         <!-- Logo -->
-         <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
-            <i class="bi bi-box-seam-fill me-2 fs-4 text-primary"></i>
-            <span class="fw-bold">InvenBar</span>
+        <a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="{{ url('/') }}">
+            <i class="bi bi-box-seam fs-3 me-2"></i> InvenBar
         </a>
 
-        <!-- Toggler (hamburger) -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+        <!-- Menu -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Menu -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <!-- Left Side -->
-            <ul class="navbar-nav me-auto">
-                @php
-                    $navs = [
-                                ['route' => 'dashboard', 'name' => 'Dashboard'],
-                                ['route' => 'barang.index', 'name' => 'Barang'],
-                                ['route' => 'lokasi.index', 'name' => 'Lokasi'],
-                                ['route' => 'kategori.index', 'name' => 'Kategori'],
-                                ['route' => 'peminjaman.index', 'name' => 'Peminjaman'], // 👉 Tambahin ini
-                                ['route' => 'user.index', 'name' => 'User', 'role' => 'admin'],
-                            ];
-
-                @endphp
-
-                @foreach ($navs as $nav)
-                    @php extract($nav); @endphp
-
-                    @if (isset($role))
-                        @role($role)
-                            <li class="nav-item">
-                                <x-nav-link :active="request()->routeIs($route)" :href="route($route)">
-                                    {{ __($name) }}
-                                </x-nav-link>
-                            </li>
-                        @endrole
-                    @else
-                        <li class="nav-item">
-                            <x-nav-link :active="request()->routeIs($route)" :href="route($route)">
-                                {{ __($name) }}
-                            </x-nav-link>
-                        </li>
-                    @endif
-                @endforeach
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('dashboard') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('barang.*') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('barang.index') }}">Barang</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('lokasi.*') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('lokasi.index') }}">Lokasi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('kategori.*') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('kategori.index') }}">Kategori</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('sumber-dana.*') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('sumber-dana.index') }}">Sumber Dana</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('peminjaman.*') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('peminjaman.index') }}">Peminjaman</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('user.*') ? 'active fw-bold text-primary' : '' }}"
+                       href="{{ route('user.index') }}">User</a>
+                </li>
             </ul>
 
-            <!-- Right Side -->
-            <ul class="navbar-nav ms-auto">
-                <!-- Dropdown User -->
-                <x-dropdown>
-                    <x-slot name="trigger">
-                        {{ Auth::user()->name }}
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Logout -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault(); this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+            <!-- Dropdown User -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        {{ auth()->user()->name ?? 'Administrator' }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>

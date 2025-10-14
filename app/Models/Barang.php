@@ -11,6 +11,7 @@ class Barang extends Model
         'nama_barang',
         'kategori_id',
         'lokasi_id',
+        'sumber_dana_id', // ✅ tambahkan kolom ini
         'jumlah',
         'satuan',
         'tanggal_pengadaan',
@@ -19,7 +20,7 @@ class Barang extends Model
     ];
 
     protected $casts = [
-        'detail_kondisi' => 'array', // <--- penting biar JSON otomatis array
+        'detail_kondisi' => 'array', // biar JSON otomatis dikonversi ke array
     ];
 
     public function kategori()
@@ -30,5 +31,10 @@ class Barang extends Model
     public function lokasi()
     {
         return $this->belongsTo(Lokasi::class);
+    }
+
+    public function sumberDana()
+    {
+        return $this->belongsTo(SumberDana::class, 'sumber_dana_id');
     }
 }

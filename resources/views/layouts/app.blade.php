@@ -47,6 +47,13 @@
                             <a class="nav-link {{ request()->routeIs('kategori.*') ? 'active fw-bold text-primary' : '' }}"
                                href="{{ route('kategori.index') }}">Kategori</a>
                         </li>
+
+                        {{-- ✅ Menu Sumber Dana baru ditambahkan di sini --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('sumber-dana.*') ? 'active fw-bold text-primary' : '' }}"
+                               href="{{ route('sumber-dana.index') }}">Sumber Dana</a>
+                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('peminjaman.*') ? 'active fw-bold text-primary' : '' }}"
                                href="{{ route('peminjaman.index') }}">Peminjaman</a>

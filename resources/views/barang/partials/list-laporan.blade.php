@@ -6,6 +6,7 @@
             <th>Nama Barang</th>
             <th>Kategori</th>
             <th>Lokasi</th>
+            <th>Sumber Dana</th>
             <th>Jumlah</th>
             <th>Kondisi</th>
         </tr>
@@ -18,6 +19,7 @@
                 <td>{{ $item->nama_barang }}</td>
                 <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
                 <td>{{ $item->lokasi->nama_lokasi ?? '-' }}</td>
+                <td>{{ $item->sumberDana->nama_sumber_dana ?? '-' }}</td> 
                 <td>{{ $item->jumlah }} {{ $item->satuan }}</td>
                 <td>
                     @php

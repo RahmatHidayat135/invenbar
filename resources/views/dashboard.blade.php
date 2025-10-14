@@ -11,90 +11,123 @@
 <div class="container mt-4">
 
     <!-- Greeting -->
-        <h2 class="mb-4" style="font-size: 30px;">
-            Selamat Datang, <strong>{{ auth()->user()->name }}</strong>!
-        </h2>
+    <h2 class="mb-4" style="font-size: 30px;">
+        Selamat Datang, <strong>{{ auth()->user()->name }}</strong>!
+    </h2>
 
+    <!-- Statistik Cards -->
+    <div class="row g-3 mb-4">
 
-
-            <div class="row g-3 mb-4">
-
-                <!-- Total Barang -->
-                <div class="col-md-3">
-                    <div class="card border-primary shadow-sm h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold text-uppercase text-primary mb-1">TOTAL BARANG</h6>
-                                <h3 class="mb-0">{{ $totalBarang }}</h3>
-                            </div>
-                            <i class="bi bi-box-seam text-primary" style="font-size: 2rem;"></i>
-                        </div>
-                        <div class="card-footer bg-white border-top">
-                            <a href="{{ route('barang.index') }}" class="text-decoration-none small text-primary">
-                                Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </div>
+        <!-- Total Barang -->
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold text-uppercase text-primary mb-1">TOTAL BARANG</h6>
+                        <h3 class="mb-0">{{ $totalBarang }}</h3>
                     </div>
+                    <i class="bi bi-box-seam text-primary" style="font-size: 2rem;"></i>
                 </div>
-
-                <!-- Total Kategori -->
-                <div class="col-md-3">
-                    <div class="card border-secondary shadow-sm h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold text-uppercase text-secondary mb-1">TOTAL KATEGORI</h6>
-                                <h3 class="mb-0">{{ $totalKategori }}</h3>
-                            </div>
-                            <i class="bi bi-tags text-secondary" style="font-size: 2rem;"></i>
-                        </div>
-                        <div class="card-footer bg-white border-top">
-                            <a href="{{ route('kategori.index') }}" class="text-decoration-none small text-secondary">
-                                Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ route('barang.index') }}" class="text-decoration-none small text-primary">
+                        Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
                 </div>
-
-                <!-- Total Lokasi -->
-                <div class="col-md-3">
-                    <div class="card border-success shadow-sm h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold text-uppercase text-success mb-1">TOTAL LOKASI</h6>
-                                <h3 class="mb-0">{{ $totalLokasi }}</h3>
-                            </div>
-                            <i class="bi bi-geo-alt text-success" style="font-size: 2rem;"></i>
-                        </div>
-                        <div class="card-footer bg-white border-top">
-                            <a href="{{ route('lokasi.index') }}" class="text-decoration-none small text-success">
-                                Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Total User (hanya admin) -->
-                @if(auth()->user()->hasRole('admin'))
-                <div class="col-md-3">
-                    <div class="card border-danger shadow-sm h-100">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold text-uppercase text-danger mb-1">TOTAL USER</h6>
-                                <h3 class="mb-0">{{ $totalUser }}</h3>
-                            </div>
-                            <i class="bi bi-people text-danger" style="font-size: 2rem;"></i>
-                        </div>
-                        <div class="card-footer bg-white border-top">
-                            <a href="{{ route('user.index') }}" class="text-decoration-none small text-danger">
-                                Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
             </div>
+        </div>
 
+        <!-- Total Kategori -->
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-info shadow-sm h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold text-uppercase text-info mb-1">TOTAL KATEGORI</h6>
+                        <h3 class="mb-0">{{ $totalKategori }}</h3>
+                    </div>
+                    <i class="bi bi-tags text-info" style="font-size: 2rem;"></i>
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ route('kategori.index') }}" class="text-decoration-none small text-info">
+                        Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Lokasi -->
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-success shadow-sm h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold text-uppercase text-success mb-1">TOTAL LOKASI</h6>
+                        <h3 class="mb-0">{{ $totalLokasi }}</h3>
+                    </div>
+                    <i class="bi bi-geo-alt text-success" style="font-size: 2rem;"></i>
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ route('lokasi.index') }}" class="text-decoration-none small text-success">
+                        Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Sumber Dana -->
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-warning shadow-sm h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold text-uppercase text-warning mb-1">TOTAL SUMBER DANA</h6>
+                        <h3 class="mb-0">{{ $totalSumberDana }}</h3>
+                    </div>
+                    <i class="bi bi-cash-coin text-warning" style="font-size: 2rem;"></i>
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ route('sumber-dana.index') }}" class="text-decoration-none small text-warning">
+                        Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Peminjaman -->
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-secondary shadow-sm h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold text-uppercase text-secondary mb-1">TOTAL PEMINJAMAN</h6>
+                        <h3 class="mb-0">{{ $totalPeminjaman }}</h3>
+                    </div>
+                    <i class="bi bi-journal-arrow-up text-secondary" style="font-size: 2rem;"></i>
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ route('peminjaman.index') }}" class="text-decoration-none small text-secondary">
+                        Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total User (admin only) -->
+        @if(auth()->user()->hasRole('admin'))
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-danger shadow-sm h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold text-uppercase text-danger mb-1">TOTAL USER</h6>
+                        <h3 class="mb-0">{{ $totalUser }}</h3>
+                    </div>
+                    <i class="bi bi-people text-danger" style="font-size: 2rem;"></i>
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ route('user.index') }}" class="text-decoration-none small text-danger">
+                        Lihat Selengkapnya <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+    </div>
 
     <!-- Ringkasan & Barang Terbaru -->
     <div class="row g-3">
@@ -102,7 +135,7 @@
         <!-- Ringkasan Kondisi -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header fw-bold">
+                <div class="card-header fw-bold bg-light">
                     Ringkasan Kondisi Barang
                 </div>
                 <div class="card-body">
@@ -112,9 +145,7 @@
                         <span>{{ $baikCount }}</span>
                     </div>
                     <div class="progress mb-3" style="height: 16px;">
-                        <div class="progress-bar bg-success" role="progressbar"
-                            style="width: {{ $baikPercent }}%;" aria-valuenow="{{ $baikPercent }}"
-                            aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-success" style="width: {{ $baikPercent }}%;"></div>
                     </div>
 
                     <!-- Rusak Ringan -->
@@ -123,9 +154,7 @@
                         <span>{{ $rusakRinganCount }}</span>
                     </div>
                     <div class="progress mb-3" style="height: 16px;">
-                        <div class="progress-bar bg-warning" role="progressbar"
-                            style="width: {{ $rusakRinganPercent }}%;" aria-valuenow="{{ $rusakRinganPercent }}"
-                            aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-warning" style="width: {{ $rusakRinganPercent }}%;"></div>
                     </div>
 
                     <!-- Rusak Berat -->
@@ -134,9 +163,7 @@
                         <span>{{ $rusakBeratCount }}</span>
                     </div>
                     <div class="progress" style="height: 16px;">
-                        <div class="progress-bar bg-danger" role="progressbar"
-                            style="width: {{ $rusakBeratPercent }}%;" aria-valuenow="{{ $rusakBeratPercent }}"
-                            aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-danger" style="width: {{ $rusakBeratPercent }}%;"></div>
                     </div>
                 </div>
             </div>
@@ -145,7 +172,7 @@
         <!-- Barang Terakhir -->
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header fw-bold">
+                <div class="card-header fw-bold bg-light">
                     5 Barang Terakhir Ditambahkan
                 </div>
                 <div class="card-body p-0">
