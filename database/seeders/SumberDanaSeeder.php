@@ -7,18 +7,19 @@ use Illuminate\Support\Facades\DB;
 
 class SumberDanaSeeder extends Seeder
 {
-    /**
-     * Jalankan semua seeder (langsung dipanggil dari sini).
-     */
     public function run(): void
     {
-        // Seeder untuk tabel sumber_danas
-        DB::table('sumber_danas')->insert([
-            ['nama_sumber_dana' => 'APBN'],
-            ['nama_sumber_dana' => 'APBD'],
-            ['nama_sumber_dana' => 'Dana Hibah'],
-            ['nama_sumber_dana' => 'CSR'],
+        $sumberDanas = [
+            ['nama_sumber_dana' => 'Pemerintah'],
+            ['nama_sumber_dana' => 'BOS Sekolah'],
             ['nama_sumber_dana' => 'Donasi'],
-        ]);
+        ];
+
+        foreach ($sumberDanas as $data) {
+            DB::table('sumber_danas')->updateOrInsert(
+                ['nama_sumber_dana' => $data['nama_sumber_dana']],
+                $data
+            );
+        }
     }
 }

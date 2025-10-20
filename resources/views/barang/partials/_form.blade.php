@@ -90,13 +90,7 @@
     <div class="col-md-6">
         <x-form-input label="Gambar Barang" name="gambar" type="file" />
         
-        @isset($barang->gambar)
-            <small class="text-muted">Gambar saat ini:</small><br>
-            <img src="{{ asset('storage/' . $barang->gambar) }}" 
-                alt="Gambar Barang" 
-                width="120" 
-                class="mt-1 rounded border">
-        @endisset
+        
     </div>
 </div>
 

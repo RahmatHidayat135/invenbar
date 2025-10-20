@@ -11,24 +11,24 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            SumberDanaSeeder::class, 
             KategoriSeeder::class,
             LokasiSeeder::class,
             BarangSeeder::class,
-            SumberDanaSeeder::class,
         ]);
 
         // Admin user
         $admin = User::create([
             'name' => 'Administrator',
             'email' => 'admin@gmail.com',
-            'password' => bcrypt('admin123'), // password custom
+            'password' => bcrypt('admin123'),
         ]);
 
         // Petugas user
         $petugas = User::create([
             'name' => 'Petugas Inventaris',
             'email' => 'petugas@gmail.com',
-            'password' => bcrypt('petugas123'), // password custom
+            'password' => bcrypt('petugas123'),
         ]);
 
         // Assign roles
